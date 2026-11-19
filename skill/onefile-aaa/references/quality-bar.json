@@ -1,0 +1,16 @@
+{
+  "version": 1,
+  "note": "The skill's own visual bar. Read by the main session and passed to workflows/build-game.js as args.bar. Updated only by the ratchet rules in quality-bar.md.",
+  "look": { "minLighting": 7, "minAtmosphere": 7, "minGrade": 7, "maxLookMajors": 1 },
+  "g2": { "maxMajors": 6, "minAxis": 6, "minGeometry": 5.5, "minMean": 6.4 },
+  "stretch": { "maxMajors": 0, "minAxis": 7.5, "minMean": 8.0 },
+  "anchors": {
+    "floor": { "set": "calibration/floor/graybox-*.jpg", "from": "whiteout G1 graybox", "scores": null, "mean": null },
+    "best":  { "set": "calibration/best/whiteout-*.jpg", "from": "whiteout ship 2026-11-18",
+               "scores": { "lighting": 6.5, "materials": 5.5, "geometry": 6, "atmosphere": 7.5, "composition": 6, "color_grade": 7, "stability": 6 },
+               "mean": 6.4, "majors": 9 }
+  },
+  "history": [
+    { "date": "2026-11-18", "game": "whiteout", "budget": "quick", "mean": 6.4, "majors": 9, "minAxis": 5.5, "g2": false, "beatBest": "n/a (first run)" }
+  ]
+}
