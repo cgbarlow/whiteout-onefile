@@ -1,7 +1,6 @@
 # water/ — Gerstner sea, caustics
 
-Showcase: `lab/showcases/wet.js` (beach at x≈400, quay at z=-50). Best stills: `lab/shots/wet/r10/critic/quay.jpg`,
-`down.jpg` (caustics through shallow water), `lab/shots/wet/r10/critic/beach.jpg`.
+Checked on an isolated showcase page during development (a beach and a quay with caustics through shallow water; not included in this repo).
 
 ## Files
 | file | purpose |

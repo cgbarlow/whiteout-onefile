@@ -1,7 +1,7 @@
 # lighting/ — sky, IBL, one shared fog, PCSS shadows, probes, practical lights
 
-Showcase: `lab/showcases/lighting.js` (`node build-showcase.mjs lighting --min`). `?show=dusk` lowers the sun,
-`?show=nopcss` = stock PCF, `?show=noprobe` = no interior probe (A/B).
+Checked on an isolated showcase page during development (not included in this repo), A/B-ing a lowered dusk sun,
+stock PCF against PCSS, and interior probes on/off.
 
 ## Boot order (copy this)
 ```js

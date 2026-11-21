@@ -2,8 +2,8 @@
 
 Pick **one** thesis in Phase 0. Copy its `ART` object into the game's `src/art.js` as `export const ART = {...}`
 (rename the constant). Change values only through the look-director, one knob per critic round (see
-`critic-rubric.md` A/B protocol). Every object below follows the binding schema in `cookbook/CONTRACT.md`, and
-`lab/refs-check.mjs` evaluates each one and checks it against that schema.
+`critic-rubric.md` A/B protocol). Every object below follows the binding schema in `cookbook/CONTRACT.md`; each one
+was checked against that schema during development.
 
 Units and conventions (all colours are **linear** RGB, not sRGB hex):
 - `sun.elevDeg` is degrees above the horizon. `sun.azimDeg` is measured from +Z toward +X:
@@ -382,9 +382,8 @@ export const ART_STORMY_SEA = {
 ## Checking a thesis before look-lock
 
 All ten objects were rendered on a neutral graybox (bevelled container stacks, pylons, far ring of blocks) through the real
-cookbook sky, env, atmos, PCSS, practical light and post chain, into the sun and away from it, with zero errors:
-`node lab/refs-check.mjs --emit lab/showcases/_arts.gen.js && node lab/build-showcase.mjs looks --min`, then capture
-`out/looks.min.html?look=<0-9>&pose=into|away`. Use it after editing any constant: it shows exposure, haze density and
-sun/sky balance only. Materials, wetness and practicals change the final read a lot (T2 and T7 look nearly black
+cookbook sky, env, atmos, PCSS, practical light and post chain, into the sun and away from it, with zero errors, during
+development (that check page is not included here). After editing any constant, check it the same way on the game's own
+graybox capture: it shows exposure, haze density and sun/sky balance only. Materials, wetness and practicals change the final read a lot (T2 and T7 look nearly black
 on the graybox by design: their light comes from neon and lava). T8 is an interior thesis; its outdoor card shows a bright
 star aureole that windows must frame, not a finished look.

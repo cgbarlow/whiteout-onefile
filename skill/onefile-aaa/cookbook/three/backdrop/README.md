@@ -22,7 +22,7 @@ building cells with rooftop plant/masts, or crown bumps/conifer spikes. Coverage
 their average glow before they alias. Rim on the sun side of crests, flat sun on faces when the sun is behind the camera.
 Fog: `atmosApply()` from `lighting/atmos.glsl.js` evaluated at `cam + (p-cam)*fogScale` — identical maths to every other
 material, so layers separate by aerial perspective. If `installAtmos(G)` was not called, the same uniform names are
-registered with neutral golden-hour defaults (placeholder).
+registered with neutral golden-hour defaults.
 
 ## Wire into a game
 ```js

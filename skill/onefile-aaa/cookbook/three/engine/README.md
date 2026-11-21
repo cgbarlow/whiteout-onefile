@@ -1,7 +1,8 @@
 # engine/ — core, harness, quality, input, boot, loop, springs, bench, finalize
 
-Infrastructure every game and showcase sits on. Showcase: `lab/showcases/engine.js` (a yard with a status board that
-prints tier, dynres self-test, warm-up, late compiles, input mode, context-loss test, and the boot timeline).
+Infrastructure every game and showcase sits on. Checked during development on an isolated showcase page (not included
+in this repo) with a status board printing tier, dynres self-test, warm-up, late compiles, input mode, context-loss test
+and the boot timeline.
 Wiring order: `references/pipeline-order.md` §2. Template wiring: `templates/three/src/main.js`.
 
 ## Files

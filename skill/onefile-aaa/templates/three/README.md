@@ -1,7 +1,7 @@
 # templates/three — single-file three.js game skeleton
 
 Copy this folder to the new game, copy `cookbook/three/` to `src/cookbook/` and `tools/` to `tools/`, then `npm i` (or
-symlink a shared `node_modules`). `node build.mjs` → `dist/index.html`. Verified end-to-end in `lab/tpl-test/`
+symlink a shared `node_modules`). `node build.mjs` → `dist/index.html`. Verified end-to-end during development
 (build 803 KB raw / 237 KB gz with every cookbook system wired, capture 0 errors on the 6 POSES, playtest PASS; a
 snow + lightning ART variant also captures with 0 errors).
 

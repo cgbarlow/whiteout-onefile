@@ -1,6 +1,6 @@
 # ground/ — wet ground, puddles, planar reflection
 
-Showcase: `lab/showcases/wet.js` (`node build-showcase.mjs wet --min`). Best stills: `lab/shots/wet/r10/critic/yard.jpg`, `puddle.jpg`.
+Checked on an isolated showcase page during development (a wet yard with puddles; not included in this repo).
 
 ## Files
 | file | purpose |

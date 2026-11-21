@@ -119,7 +119,7 @@ chunk include (e.g. `#include <roughnessmap_fragment>`) and keep the include tex
 `window.__setCam([x,y,z],[tx,ty,tz])`, `window.__G`. URL: `?shot=1` (hide UI, fixed time), `?cam=x,y,z,tx,ty,tz`,
 `?q=low|med|high|ultra`, `?dt=0.016667` (fixed timestep), `?seed=N`, `?post=0`, `?show=<name>`, `?dynres=0`, `#bench`.
 
-## Showcase pages (how each cookbook area proves itself)
-`lab/showcases/<name>.js` imports cookbook files + `cookbook/three/engine/showcase-boot.js`; build with
-`node lab/build-showcase.mjs <name>` → `lab/out/<name>.html`; capture with
+## Showcase pages (look-dev and isolated checks)
+A showcase page imports cookbook files + `cookbook/three/engine/showcase-boot.js` and is bundled like a game
+(the development showcase pages are not included in this repo); capture with
 `node onefile-aaa/tools/capture.mjs --url file-or-http --out dir --poses "x,y,z,tx,ty,tz;..."`.

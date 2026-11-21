@@ -1,7 +1,6 @@
 # weather/ — rain, snow, dust motes, lightning
 
-Showcase: `lab/showcases/wet.js` with `?wx=rain` (default) `|snow|dust|storm` (`&flash=1` forces a strike).
-Best stills: `lab/shots/wet/r10/critic/yard.jpg` (rain), `r10-snow/critic/close.jpg`, `r07-dust/critic/yard.jpg`.
+Checked on an isolated showcase page during development (rain, snow, dust and storm variants; not included in this repo).
 
 ## Files
 | file | purpose |

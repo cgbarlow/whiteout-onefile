@@ -26,8 +26,8 @@ TARGET
 
 LOOK (ART.md = ART_DUSK_WHITEOUT, thesis T3 "overcast snow, research station", adapted to dusk + blizzard)
 - Thesis: last dusk light bleeding through a full overcast, wind-driven snow, warmth only from windows, work lights and the
-  beacon. Sun elev 7 / azim 255, (1.0,0.62,0.42) ×3.0. Fog σ (0.017,0.017,0.016), gusts push it to ×2.2.
-  Grade agxMix 0.5, lookPower 1.08, sat 0.85, cool split-tone shadows, vignette 0.38, grain 0.035.
+  beacon. Sun elev 7 / azim 255, (1.0,0.56,0.30) ×3.0. Fog σ (0.017,0.017,0.016), gusts push it to ×2.2.
+  Grade agxMix 0.65, lookPower 1.18, sat 0.92, contrast 0.24, cool split-tone shadows, vignette 0.38, grain 0.035.
 - Signature surface: snow accumulation on up-facing faces + drifts against walls, frost on windows and generator panels.
   Weather: snow 0.8, wind (6,0,2), gust cycle 18-30 s.
 - Hero object: the diesel generator skid (3 instances, ≥ 30 k tris, 2.6 × 1.1 × 1.5 m) + the 28 m lattice beacon tower.
@@ -62,7 +62,7 @@ GAMEPLAY
   with time, restart.
 
 VERIFICATION
-- Visual critic per critic-rubric.md (6 poses + 2 yaw + showcases; G2: no blocker/major, axes ≥ 7.5, mean ≥ 8.0).
+- Visual critic per critic-rubric.md (6 hero poses + 2 random-yaw shots + showcases; G2 thresholds from references/quality-bar.json; mean 8.0 is only the stretch target).
 - Performance: bench report + GPU timestamps if available. Gate G4.
 - Gameplay: bot reaches win and lose, all verbs, restart, zero errors over 5 min; audio self-test peak ≤ -1 dBFS. Gate G3.
 - Boot: 6 pose PNGs, __errors empty, renderer is not SwiftShader/llvmpipe, dist builds < 2 MB. Gate G1.

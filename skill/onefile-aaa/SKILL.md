@@ -8,7 +8,7 @@ description: Build an AAA-looking single-file 3D browser game (one dist/index.ht
 Why this works (read `references/lessons.md`): procedural browser games look AAA because of a **render stack** (HDR post chain,
 filmic grade, volumetrics, sky-matched IBL, baked procedural PBR + weathering, PCSS, planar puddles) and a **process**
 (real-GPU captures at fixed hero poses → a blind critic that only sees images → fixes, repeated for hours), not because of
-detailed models or hidden prompts. This skill ships the stack as `cookbook/three/` (every system proven on a showcase page)
+detailed models or hidden prompts. This skill ships the stack as `cookbook/three/` (each system checked on an isolated showcase page during development)
 and the process as `workflows/build-game.js`.
 
 **Judging quality:** the skill has its own visual standard (`references/quality-bar.md`): absolute per-axis anchors, its own
@@ -67,6 +67,7 @@ reaches win + lose, 0 errors, no stub modules) · G2 visual (the skill's own bar
 - `THIRD_PARTY_NOTICES.md` — licences for three.js and the MIT-licensed code adapted in `cookbook/three/geo/` and `water/caustics.js`.
 
 ## Status / honesty
-Cookbook systems are verified individually on showcase pages (real GPU, 0 errors, minified). The end-to-end pipeline
-(`workflows/build-game.js`) has **not yet been validated on a full game run** — the first run is the validation; expect to fix
-integration issues and feed them back into the cookbook.
+Cookbook systems were checked individually on isolated showcase pages during development (real GPU, 0 errors, minified;
+those pages are not included here). The end-to-end pipeline (`workflows/build-game.js`) has been validated end to end once
+(WHITEOUT, 2026-11-18, quick budget): playable, passed G1/G3/size, failed G2/G4. See references/run-log.md.
+Expect to fix integration issues and feed them back into the cookbook.

@@ -4,7 +4,7 @@ All builders are load-time only (zero per-frame work except `scatter().update`, 
 Every output is an indexed `BufferGeometry` with `position / normal / uv / color`; **UVs are metric (1 uv = 1 m)**,
 so `materials/library.js` sets tile at the right physical size. Vertex colour carries baked AO/grime: set
 `material.vertexColors = true` on every material that renders kit/terrain/scatter geometry.
-Showcase: `lab/showcases/geo.js` (`node build-showcase.mjs geo --min`), poses listed at the bottom of that file.
+Checked on an isolated showcase page during development (not included in this repo).
 
 ## Files
 | file | purpose |

@@ -1,7 +1,7 @@
 # post/: HDR post-processing chain (three r180, WebGL2, no EffectComposer)
 
 Files: `pipeline.js` (createPost and the frame graph), `shaders.js` (GLSL for every pass), `fullscreen.js` (the fullscreen-triangle helper every pass uses).
-Showcase: `lab/showcases/post.js`. Build it with `node build-showcase.mjs post --min`.
+Checked on an isolated showcase page during development (not included in this repo).
 
 ## Frame graph (runs inside `G.render()`)
 ```
@@ -155,4 +155,4 @@ A full-res frame does about 24 fullscreen passes, most of them at half resolutio
 - The pipeline sets `renderer.autoClear = false` while it runs and restores it afterwards. Offscreen renders done in `prerender` keep the caller's setting.
 - Never sample `targets.scene.texture` while rendering into it. Water and refraction should read `targets.comp` from the previous frame, or render after post. Objects in `post.transparent` may sample `targets.zFull`, never `targets.depth` (on the low tier that texture is attached to the target being drawn).
 - The volumetric march stops 0.25 m in front of the surface so its last samples do not print the receiver's shadow-map texel grid (a cross-hatch on walls facing away from the sun).
-- Radial light/dark wedges on the ground looking into a low, bright sun are usually real shadow penumbrae from PCSS (check with `?vol=0`). The T8 space-station look (`lab/shots/looks/r3/7-into`) was checked this way: the wedges are unchanged with `?vol=0`. The volumetric part of that frame was the standalone milky haze plus step-boundary arcs where rays left the 48 m shadow frustum, and atmos mode removes both.
+- Radial light/dark wedges on the ground looking into a low, bright sun are usually real shadow penumbrae from PCSS (check with `?vol=0`). The T8 space-station look (into-sun pose) was checked this way: the wedges are unchanged with `?vol=0`. The volumetric part of that frame was the standalone milky haze plus step-boundary arcs where rays left the 48 m shadow frustum, and atmos mode removes both.

@@ -5,7 +5,8 @@
   "g2": { "maxMajors": 6, "minAxis": 6, "minGeometry": 5.5, "minMean": 6.4 },
   "stretch": { "maxMajors": 0, "minAxis": 7.5, "minMean": 8.0 },
   "anchors": {
-    "floor": { "set": "calibration/floor/graybox-*.jpg", "from": "whiteout G1 graybox", "scores": null, "mean": null },
+    "floor": { "set": "calibration/floor/graybox-*.jpg", "from": "whiteout G1 graybox", "scores": null, "mean": null,
+               "note": "floor not scored yet; scored on the next run's calibration step" },
     "best":  { "set": "calibration/best/whiteout-*.jpg", "from": "whiteout ship 2026-11-18",
                "scores": { "lighting": 6.5, "materials": 5.5, "geometry": 6, "atmosphere": 7.5, "composition": 6, "color_grade": 7, "stability": 6 },
                "mean": 6.4, "majors": 9 }

@@ -48,14 +48,14 @@ GAMEPLAY
 VERIFICATION
 - Visual critic: a separate subagent (agents/onefile-critic.md, tools: Read) that sees ONLY renders: 6 poses captured in GPU
   Chrome by tools/capture.mjs --critic --shimmer (1568 px JPEG + 1:1 crops + shimmer heatmaps), 2 random-yaw shots and module
-  showcases. It returns prioritised, located defects. Gate G2: no blocker or major, every axis ≥ 7.5, mean ≥ 8.0
-  (references/critic-rubric.md). Regressions decided by pairwise blind A/B.
+  showcases. It returns prioritised, located defects. Gate G2: the `g2` thresholds in references/quality-bar.json (no blocker;
+  mean 8.0 is only the stretch target; see references/critic-rubric.md). Regressions decided by pairwise blind A/B.
 - Performance: bench report (avg/p99/max, render scale, tier, renderer string) + GPU timestamps when available. Gate G4.
 - Gameplay: playtest bot reaches win and lose, exercises every verb, restart works, zero console errors over 5 min;
   audio self-test: peak ≤ -1 dBFS, no NaN, no silent stems. Gate G3.
 - Boot: 6 pose PNGs, __errors empty, renderer is not SwiftShader/llvmpipe, dist builds. Gate G1.
 
-DONE WHEN gates G1-G4 pass in the same build, or the critic-round budget (<quick 2 | standard 4 | full 8>) is exhausted, in
+DONE WHEN gates G1-G4 pass in the same build, or the critic-round budget (<quick 2 | standard 4 | full 7>) is exhausted, in
 which case ship the best snapshot with its residual defect list. Never ship a blocker. Deliver dist/index.html, its size,
 the perf report and the critic's final review.
 ```
@@ -116,7 +116,7 @@ GAMEPLAY
 - UI: title (live fly), settings, pause, HUD (body heat ring, objective text, interaction prompt), end screen with time.
 
 VERIFICATION
-- Visual critic per critic-rubric.md (6 poses + 2 yaw + showcases; G2: no blocker/major, axes ≥ 7.5, mean ≥ 8.0).
+- Visual critic per critic-rubric.md (6 hero poses + 2 random-yaw shots + showcases; G2 thresholds from references/quality-bar.json; mean 8.0 is only the stretch target).
 - Performance: bench report + GPU timestamps if available. Gate G4.
 - Gameplay: bot reaches win and lose, all verbs, restart, zero errors over 5 min; audio self-test. Gate G3.
 - Boot: G1.

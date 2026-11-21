@@ -100,5 +100,5 @@ rows) before touching anything else.
 ## 8. Stop rules tied to the critic
 
 - **Plateau:** two consecutive rounds with mean improvement < 0.1 and no blocker/major → ship best.
-- **Budget:** rounds quick 2 / standard 4 / full 8 → ship best with the open defect list in `REPORT.md`.
+- **Budget:** rounds quick 2 / standard 4 / full 7 → ship best with the open defect list in `REPORT.md`.
 - Never ship a build with a blocker; if the best has one, keep fixing only blockers.

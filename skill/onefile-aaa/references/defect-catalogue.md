@@ -1,6 +1,6 @@
 # Defect catalogue
 
-Symptom → likely cause → fix, for every defect class seen in forensic analyses of AAA-looking procedural browser games plus the usual real-time
+Symptom → likely cause → fix, from lessons from building and studying procedural browser games, plus the usual real-time
 artefacts. The lead uses the **Critic category** and **Owner** columns to route a critic defect (`critic-rubric.md`).
 Owners are module folders from the game layout (`render`, `mats`, `world`, `backdrop`, `ground`, `props`, `hero`, `actors`,
 `fx`, `hud`, `game`, `perf` = quality/dynres, `look` = look-director owning `art.js`).

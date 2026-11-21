@@ -1,5 +1,5 @@
 # WHITEOUT: ship report
-Everything else is done. The build is `dist/index.html`, built with `node build.mjs`. I ran `state.mjs gate G2 fail` (it was unset), recorded the 6.4 score and set the phase to done. The repo is committed as `ec9a3c0 ship`.
+> Paths like `src/…` and `shots/…` refer to the build folder; the game source is being added to this repo. The shipped build is `index.html` at the repo root, and the screenshots are in `whiteout/screenshots/`.
 
 WHITEOUT is a first-person survival horror game. You play a lone technician at a snowbound polar research station at dusk while a blizzard builds. You restart three generators to power the radio beacon while something stalks you between the buildings, then call for extraction from the beacon tower. It uses three.js 0.180.0 on WebGL2, and everything is procedural.
 
@@ -18,25 +18,25 @@ WHITEOUT is a first-person survival horror game. You play a lone technician at a
 - **Restart:** from the caught or extracted screen.
 
 ## Size (`tools/size-report.mjs`)
-- **Raw:** 1125.6 KB.
-- **Compressed:** 354.8 KB gzip, 293.1 KB brotli.
-- **Budget:** 2048 KB, so it passes.
-- **Breakdown:** js 1102.9 KB, css 15.3 KB, markup 7.4 KB. GLSL is about 254 KB.
+- **Raw:** 1.15 MB.
+- **Compressed:** 355 KB gzip, 293 KB brotli.
+- **Budget:** 2 MB, so it passes.
+- **Breakdown:** JS 1.10 MB, CSS 15 KB, markup 7 KB. GLSL is about 0.25 MB of the JS.
 - **Clean:** there are no blobs or external URLs.
 
 ## Gates
-- **G1, boot: PASS.** All 8 poses captured with 0 errors on a real GPU (ANGLE Metal, Apple M1 Max). No module is stubbed, and the build is under 2 MB.
+- **G1, boot: PASS.** All 8 shots (6 hero poses + 2 random-yaw shots) captured with 0 errors on a real GPU (ANGLE Metal, Apple M1 Max). No module is stubbed, and the build is under 2 MB.
 - **G2, visual: FAIL.**
-  - Calibrated bar (critic-rubric §7): no blocker, ≤ 6 majors, every axis ≥ 6 (geometry ≥ 5.5), mean ≥ 6.4.
-  - The final critic gave a mean of 6.4 (meets the bar) but materials 5.5 (< 6) and 9 major defects (> 6) fail it.
+  - The G2 gate the workflow used at run time was already: no blocker, mean ≥ 6.4, ≤ 6 majors, every axis ≥ 6 (geometry ≥ 5.5). It was set before this run by calibrating the critic (`references/quality-bar.json`). Only a reference doc still showed an older 8.0 stretch target, and that doc was corrected after the run.
+  - G2 FAILED: materials 5.5 < 6 and 9 majors > 6. The mean of 6.4 equals the starting bar. The stretch target is mean 8.0.
   - The 2-round critic budget is used up, so this build ships as the best snapshot with its open defect list. There are no blockers.
 - **G3, gameplay: PASS.** The bot reaches both win and lose and uses every verb, cranking included. Restart works.
 - **G4, performance: FAIL.**
   - At 1080p high, frame times are avg 16.72, p99 34.2 and max 36.1 ms. The gate is 12.5 / 20 / 33 ms.
-  - The scene has 3.04 M triangles, over the 3 M limit.
+  - The scene has 3.04 M triangles, over the high-tier limit of ≤ 2.5 M (`references/perf-budgets.md`).
   - It was avg 54.1 ms before the light-cull work in `src/perf/lightcull.js`.
-  - What remains is in modules owned by other agents: ground snow patches about 3.7 ms, MSAA×4 about 3.6 ms, shadows about 2 ms, fixed geometry about 7 ms.
-  - The GPU was shared with other agents and the 120 Hz screen rounds frame timing to 8.33 ms steps, so these numbers are pessimistic. The gate is still not met.
+  - The remaining cost: ground snow patches about 3.7 ms, MSAA×4 about 3.6 ms, shadows about 2 ms, fixed geometry about 7 ms.
+  - Measured on an Apple M1 Max (ANGLE Metal), vsync off, 20 s runs; full numbers below. Re-bench on an idle GPU pending. The gate is not met.
 - **Size: PASS.**
 
 ## Performance (M1 Max, vsync off, 20 s run)
@@ -52,7 +52,7 @@ With dynamic resolution on, the render scale averaged 0.928. It stepped down fro
 |---|---|---|---|---|---|---|---|---|
 | 6.5 | 5.5 | 6 | 7.5 | 6 | 7 | n/a | 6 | **6.4** |
 
-UI was not scored because shot mode hides it. An earlier round scored 6.7 (`shots/round-02`), but the final review of this build is 6.4.
+UI was not scored because shot mode hides it.
 
 ## Open defects
 
@@ -76,25 +76,26 @@ UI was not scored because shot mode hides it. An earlier round scored 6.7 (`shot
 - **D15:** the stalker in pose-5 is see-through and washed out by fog. It needs a solid dark silhouette with a rim of lamp light.
 - **D16:** in pose-3 the cabinet conduits end in floating stubs, with no contact shadow on the wall.
 
-## Best screenshots (`shots/final/`, 0 errors)
-- **pose-1.png:** establishing view over the station in the blizzard.
-- **pose-2.png:** eye level between buildings, with the flashlight and a work lamp.
-- **pose-3.png:** the hero generator in its shed.
-- **pose-4.png:** the lab interior.
-- **pose-5.png:** the stalker near the shelter.
-- **pose-6.png:** the west side, looking back past MESS.
-- **yaw-1.png:** the container wall and drift.
-- **yaw-2.png:** the plow truck and hangar.
+## Best screenshots (`whiteout/screenshots/*.jpg`, 0 errors)
+- **pose-1.jpg:** establishing view over the station in the blizzard.
+- **pose-2.jpg:** eye level between buildings, with the flashlight and a work lamp.
+- **pose-3.jpg:** the hero generator in its shed.
+- **pose-4.jpg:** the lab interior.
+- **pose-5.jpg:** the stalker near the shelter.
+- **pose-6.jpg:** the west side, looking back past MESS.
+- **yaw-1.jpg:** the container wall and drift.
+- **yaw-2.jpg:** the plow truck and hangar.
 
 Critic JPEGs, crops and shimmer maps are in `shots/final/critic/`.
 
 ## Verdict
-The game is complete and playable. Boot (G1), gameplay (G3) and size pass, there are 0 errors on a real GPU, and it is 355 KB gzipped. It does not meet the visual bar (G2: mean 6.4 meets the calibrated 6.4 bar, but materials 5.5 < 6 and 9 majors > 6) or the frame-time bar (G4: 16.7 ms against 12.5 ms). It ships as the best snapshot, with 16 defects open and no blockers.
+The game is complete and playable. Boot (G1), gameplay (G3) and size pass, there are 0 errors on a real GPU, and it is 355 KB gzipped. It does not meet the visual bar (G2 failed: materials 5.5 < 6 and 9 majors > 6; the mean of 6.4 only equals the starting bar) or the frame-time bar (G4: 16.7 ms against 12.5 ms). It ships as the best snapshot, with 16 defects open and no blockers.
 
 The highest-value next steps:
 1. Ground the flashlight beam and stabilise the volumetric light (D1–D3).
 2. Replace the boiling drift noise with wind-aligned streaks (D4).
 3. For G4, cut the ground snow patch cost and use MSAA×2 on the high tier.
+
 ## Self-review
 
 **Verdict.** Playable and complete. This is the first run, so it sets the skill's baseline: the critic gives it a mean of 6.4. Atmosphere (7.5) and colour grade (7) are the strongest axes, and materials (5.5) the weakest. It fails G2 on the materials axis and on 9 majors (the bar allows 6). In motion the volumetric light and drift noise boil.
@@ -109,4 +110,4 @@ The highest-value next steps:
 1. Polish 1-2 rounds on D1, D2, D4 and D5 (flashlight pool, temporal volumetrics, wind-aligned drift, no snow indoors). This is the biggest visible gain. Cost: about 8-12 agents, under 1M tokens, 1-2 h.
 2. Perf: MSAA×2 on high and cheaper snow patches, for G4. Cost: 2-3 agents, about 0.3M tokens.
 3. Skill fixes: move recipes for the flashlight, temporal volumetrics, interior particle culling and far-field ridges into the cookbook so the next game starts with them (see the skill's references/run-log.md).
-4. New test: a second game in a very different genre (for example a daytime coastal racer) to check the skill generalises beyond snow and horror. Cost: a quick-budget run, about 4M tokens and 5 h.
+4. New test: a second game in a very different genre (for example a daytime coastal racer) to check the skill generalises beyond snow and horror. Cost: a quick-budget run, about 4 M subagent tokens and about 5 h of active run time (about 9 h wall-clock if a usage limit pauses it).

@@ -1,6 +1,6 @@
 # Lessons: what makes procedural browser games look AAA, and the process that works
 
-Condensed from forensic analysis of AAA-looking single-file procedural browser games (code, prompts and measurements).
+Lessons from building and studying procedural browser games (code, prompts and measurements).
 Labels: **FACT** = seen in code, a prompt or a measurement; **HYP** = inference, with confidence.
 
 ## 1. The core insight
@@ -8,7 +8,7 @@ Labels: **FACT** = seen in code, a prompt or a measurement; **HYP** = inference,
 The worlds behind the best-looking procedural browser games are geometrically simple (bevelled boxes, a small mesh
 vocabulary). The look comes from **light transport, atmosphere, wetness and post**, built as one coherent render stack, and
 from a **process** that puts real-GPU screenshots in front of a blind critic for many rounds. A tightly scoped vertical slice
-(one map, one hero object, 2-3 actor types, a 5-10 minute loop) with this stack reads as a 2013-2016 AAA game in stills.
+(one map, one hero object, 2-3 actor types, a 5-10 minute loop) with this stack can approach a polished, art-directed look in stills (HYP; the first full run of this skill, WHITEOUT, scored 6.4/10 on its own critic).
 
 ## 2. What makes them look good (ranked by measured or evident contribution)
 
@@ -74,7 +74,7 @@ Findings to keep in mind:
    usage-limit pauses (a few hours of AI time can stretch over days).
 3. **Fix the 6 critic poses and the fly path before building the world**; dress the world around them.
 4. **Build the light/atmosphere/post stack first** from the cookbook with the chosen ART thesis; lock the look on a graybox
-   (lighting, atmosphere, grade, materials ≥ 8).
+   (lighting, atmosphere, colour grade ≥ 7 (references/quality-bar.json)).
 5. **Subsystem showcases** (Phase 1.5): material board, hero-model viewer, SFX board, each with a short critic loop.
 6. **Parallel module owners** (4-8), each with its showcase, zero errors, a budget, and no edits outside its module. Per-owner
    build dirs, OS-assigned ports, a capture lock, and **no perf numbers outside the perf phase** (shared GPU).
@@ -92,11 +92,11 @@ never fuse `a - -b` (use `templates/three/glsl-min.mjs`); test the **minified** 
 
 ## 5. Honest expectations
 
-- Cookbook + critic loop on Claude Opus: AAA-looking stills on the 6 poses after 3-5 rounds (HYP ~65%). Gameplay depth at
+- Cookbook + critic loop on Claude Opus: stills on the 6 poses should improve over several critic rounds, but how far is unproven (HYP; the first full run, WHITEOUT on the quick budget, scored 6.4/10). Gameplay depth at
   vertical-slice scope (4-5/10).
 - Cost: hours and millions of tokens, much cheaper than building from scratch because the cookbook removes rediscovery, but
-  not chat-sized. State this to the user before starting (`--budget quick|standard|full` = 2/4/8 critic rounds).
+  not chat-sized. State this to the user before starting (`--budget quick|standard|full` = 2/4/7 critic rounds).
 - What will still give it away: the far field, repetition, anything off the poses. Random-yaw shots and the far-field recipe
   target exactly these.
-- Licensing: study unlicensed code, never copy it. Adapt MIT code only with its copyright notice kept; the adapted code in
+- Licensing: never copy code whose licence does not allow it. Adapt MIT code only with its copyright notice kept; the adapted code in
   this skill is listed in `THIRD_PARTY_NOTICES.md`.

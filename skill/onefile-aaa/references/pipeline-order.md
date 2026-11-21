@@ -79,8 +79,9 @@ The runtime truth is `TIERS` in `cookbook/three/engine/quality.js` (read through
 | Draw-distance multiplier | 0.6 | 0.8 | 1.0 | 1.2 |
 | Planar reflection (recommended) | off | 0.5 | 0.5 | 1.0 |
 
-The two tables disagree on med MSAA and on low/ultra volumetric steps; until the engine and post owners reconcile them, the
-post pipeline's own `POST_TIERS` decides what the post chain does. `ART.vol.steps` is the art-directed request; the tier
+The two tables disagree on med MSAA and on low/ultra volumetric steps. `TIERS` in `engine/quality.js` is the authoritative
+tier table; for post-chain specifics (MSAA, AO taps, volumetric steps actually used) it defers to `POST_TIERS`, as its own
+comment states. `ART.vol.steps` is the art-directed request; the tier
 clamps it.
 
 A proven tier ladder for reference (`test/low/medium/high/ultra`): msaa 0/0/2/4/4, shadow 1024/2048/2048/4096/4096,

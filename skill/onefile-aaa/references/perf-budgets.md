@@ -37,7 +37,7 @@ All numbers are **per frame in the worst hero pose**, read from `window.__stats(
 Rules:
 - Quality differences must come from **`#define` permutations, sample counts, resolutions and counts**, never from different
   shader code paths that only get tested on one tier.
-- Hero poses must keep the **high** look on `test`: captures run with `?q=high`, never `low`.
+- Hero poses must keep the **high** look in captures: captures run with `?q=high`, never `low`.
 - Instance anything repeated > 8 times (`InstancedMesh`); merge static meshes by material (target: a whole static level in ~100-150 meshes).
 - LOD by smooth scale/dither fades over a 10-20% band, never hard cuts.
 

@@ -47,7 +47,7 @@ G.on('ready', async () => {
 // steps:   mixer.play('step_' + groundKind, { pos: feet, gain: 0.7 });   (4 variants, random)
 // boom:    mixer.play(dist < 60 ? 'explosion_near' : 'explosion_far', { pos, send: 0.6, speedOfSound: true, duck: { db: -9, hold: 0.6, release: 2 } });
 ```
-Gate: `node lab/audio-check.mjs` (blank page, no WebGL) or `--url out/game.html` → table + exit code.
+Check: `cookbook/three/audio/meter.js` renders every SFX preset, music stem and reverb IR offline and meters them (pass = peak ≤ -1 dBFS, no NaN/Inf, not silent, no clipped samples); on a built page call `window.__audioSelfTest()`.
 
 ## Recipe format (make your own sounds)
 `{ dur, peakDb, loop: seconds|'wrap', tail, layers:[...], fx:[...] }`; layer types `osc` (wave, freq PARAM, fm{ratio,index},
