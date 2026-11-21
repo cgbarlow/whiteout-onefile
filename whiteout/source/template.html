@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="color-scheme" content="dark">
+<title>{{TITLE}}</title>
+<link rel="icon" href="data:,">
+<style>/*CSS*/</style>
+</head>
+<body>
+<!-- The canvas is the only thing a ?shot=1 capture shows: html.shot hides every .ui element. -->
+<canvas id="c" aria-label="{{TITLE}}"></canvas>
+
+<!-- wind-worn edge for the stencil headings (static; rasterised once per element) -->
+<svg class="ui defs" width="0" height="0" aria-hidden="true" focusable="false">
+  <filter id="worn" x="-2%" y="-10%" width="104%" height="120%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.7 0.45" numOctaves="2" seed="7" result="n"/>
+    <feDisplacementMap in="SourceGraphic" in2="n" scale="2" xChannelSelector="R" yChannelSelector="G"/>
+  </filter>
+</svg>
+
+<div id="ui" class="ui" data-state="boot">
+  <!-- title: the live scene flies along PATH behind it (never a black first frame) -->
+  <section id="title" class="screen screen-title" hidden>
+    <div class="title-status" aria-hidden="true">
+      <span>Wind <b data-bind="wind">24 kt</b></span><span>Vis <b data-bind="vis">60 m</b></span><span>Air <b>−38 °C</b></span>
+    </div>
+    <div class="title-block">
+      <p class="kicker" data-bind="kicker">Station Kestrel · 79°S · Dusk</p>
+      <h1 class="game-title stencil" data-text="{{TITLE}}">{{TITLE}}</h1>
+      <p class="tagline" data-bind="tagline">Three generators. One beacon. Something between the buildings.</p>
+      <nav class="menu">
+        <button class="btn btn-primary" data-act="start"><span class="idx">01</span>Begin shift</button>
+        <button class="btn" data-act="settings"><span class="idx">02</span>Settings</button>
+      </nav>
+    </div>
+    <ul class="keys" aria-label="Controls">
+      <li><kbd>W</kbd><kbd>A</kbd><kbd>S</kbd><kbd>D</kbd>Move</li>
+      <li><kbd class="wide">Shift</kbd>Sprint</li>
+      <li><kbd>C</kbd>Crouch · hide</li>
+      <li><kbd>F</kbd>Torch</li>
+      <li><kbd>E</kbd>Hold to interact</li>
+      <li><kbd class="wide">Esc</kbd>Pause</li>
+    </ul>
+  </section>
+
+  <section id="pause" class="screen screen-menu" hidden>
+    <div class="plate">
+      <p class="kicker">Shift suspended</p>
+      <h2 class="screen-heading stencil">Paused</h2>
+      <dl class="stats">
+        <div><dt>Elapsed</dt><dd data-bind="pauseTime">0:00</dd></div>
+        <div><dt>Generators</dt><dd data-bind="pauseGens">0/3</dd></div>
+      </dl>
+      <nav class="menu">
+        <button class="btn btn-primary" data-act="resume"><span class="idx">01</span>Resume</button>
+        <button class="btn" data-act="settings"><span class="idx">02</span>Settings</button>
+        <button class="btn" data-act="restart"><span class="idx">03</span>Restart shift</button>
+      </nav>
+    </div>
+  </section>
+
+  <section id="settings" class="screen screen-menu" hidden>
+    <div class="plate plate-wide">
+      <p class="kicker">Station terminal</p>
+      <h2 class="screen-heading stencil">Settings</h2>
+      <form class="settings-grid" onsubmit="return false">
+        <div class="row" role="radiogroup" aria-label="Quality">
+          <span class="row-l">Quality</span>
+          <div class="seg">
+            <label><input type="radio" name="quality" value="auto"><span>Auto</span></label>
+            <label><input type="radio" name="quality" value="low"><span>Low</span></label>
+            <label><input type="radio" name="quality" value="med"><span>Med</span></label>
+            <label><input type="radio" name="quality" value="high"><span>High</span></label>
+            <label><input type="radio" name="quality" value="ultra"><span>Ultra</span></label>
+          </div>
+        </div>
+        <label class="row"><span class="row-l">Mouse sensitivity</span><input name="sens" type="range" min="0.3" max="3" step="0.05" value="1"><output data-out="sens">1.00</output></label>
+        <label class="row"><span class="row-l">Field of view</span><input name="fov" type="range" min="60" max="90" step="1" value="68"><output data-out="fov">68°</output></label>
+        <label class="row"><span class="row-l">Volume</span><input name="volume" type="range" min="0" max="1" step="0.01" value="0.8"><output data-out="volume">80%</output></label>
+        <label class="row"><span class="row-l">Brightness</span><input name="brightness" type="range" min="0.6" max="1.6" step="0.02" value="1"><output data-out="brightness">1.00</output></label>
+        <label class="row"><span class="row-l">Invert Y</span><span class="toggle"><input name="invertY" type="checkbox"><i></i></span><output data-out="invertY">Off</output></label>
+      </form>
+      <nav class="menu"><button class="btn btn-primary" data-act="back"><span class="idx">◂</span>Back</button></nav>
+    </div>
+  </section>
+
+  <!-- HUD: sparse, plates fade into the frame so it stays readable over white snow -->
+  <div id="hud" class="hud" hidden>
+    <div class="hud-obj">
+      <p class="hud-k">Objective</p>
+      <p class="hud-obj-t" data-bind="objective"></p>
+      <div class="pips" aria-label="Generators">
+        <span class="pip" data-gen="A" data-s="off"><i></i>A</span>
+        <span class="pip" data-gen="B" data-s="off"><i></i>B</span>
+        <span class="pip" data-gen="C" data-s="off"><i></i>C</span>
+        <span class="pip-n" data-bind="gens">0/3</span>
+      </div>
+    </div>
+    <div class="hud-toast" data-bind="toast"></div>
+    <div class="crosshair" aria-hidden="true"></div>
+    <svg class="hud-hold" viewBox="0 0 64 64" aria-hidden="true">
+      <circle class="ring-bg" cx="32" cy="32" r="26"/>
+      <circle class="ring-fg" data-bind="hold" cx="32" cy="32" r="26" pathLength="1"/>
+    </svg>
+    <div class="hud-prompt" data-bind="prompt" data-mode="">
+      <kbd class="pk">E</kbd><span class="pm">Hold</span><span class="pt"></span>
+    </div>
+    <div class="hud-look" data-bind="look">Click to look</div>
+    <div class="hud-status">
+      <div class="meter" data-bind="torchBox">
+        <span class="lbl">Torch</span><div class="bar bar-cells"><i data-bind="battery"></i></div><span class="val" data-bind="batteryPct">100</span>
+      </div>
+      <div class="meter meter-breath" data-bind="breathBox">
+        <span class="lbl">Breath</span><div class="bar bar-thin"><i data-bind="stamina"></i></div>
+      </div>
+    </div>
+    <div class="fear-edge" data-bind="fear"></div>
+  </div>
+  <div class="cut" aria-hidden="true"></div>
+
+  <section id="end" class="screen screen-end" hidden data-res="lost">
+    <div class="end-block">
+      <p class="kicker" data-bind="endKicker">Signal lost</p>
+      <h2 class="end-title stencil" data-bind="endTitle"></h2>
+      <p class="tagline" data-bind="endText"></p>
+      <dl class="stats">
+        <div><dt>Time</dt><dd data-bind="endTime">0:00</dd></div>
+        <div><dt>Generators</dt><dd data-bind="endGens">0/3</dd></div>
+      </dl>
+      <nav class="menu">
+        <button class="btn btn-primary" data-act="restart"><span class="idx">01</span>Try again</button>
+        <button class="btn" data-act="title"><span class="idx">02</span>Title</button>
+      </nav>
+    </div>
+  </section>
+</div>
+
+<!-- loading screen: engine/boot.js drives .boot-bar>i width and .boot-msg text -->
+<div id="boot" class="ui boot">
+  <div class="boot-title stencil">{{TITLE}}</div>
+  <div class="boot-msg">Loading</div>
+  <div class="boot-bar"><i></i></div>
+</div>
+<noscript><p class="noscript">This game needs JavaScript and WebGL2.</p></noscript>
+<script>/*SCRIPT*/</script>
+</body>
+</html>

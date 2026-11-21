@@ -1,0 +1,19 @@
+{
+  "query": "autostart=1&seed=7713",
+  "w": 1280, "h": 720,
+  "steps": [
+    { "waitFor": "__G.mods.ui && __G.mods.ui.state === 'playing' && __G.mods.game && __G.mods.game.debug", "timeout": 120000 },
+    { "eval": "(window.__soak = { tick: 0, ends: 0, restarts: 0, maxFear: 0, f0: __frames }, __G.on('game:end', () => __soak.ends++), window.__soakT = setInterval(() => { const s = __soak, i = s.tick++, g = __G.mods.game; s.maxFear = Math.max(s.maxFear, g.fear); if (__G.mods.ui.state === 'end') { if (i % 3 === 0) { document.querySelector('[data-act=\"restart\"]').click(); s.restarts++; } return; } const k = (i * 7919) % 23; __input.setMove(((k % 5) - 2) / 2, k % 4 === 0 ? -0.5 : 1, 1400); __input.look(((k % 7) - 3) * 60, ((k % 3) - 1) * 12); if (k % 6 === 0) __input.hold('sprint', 1200); if (k % 9 === 0) __input.hold('crouch', 900); if (k % 11 === 0) __input.press('light'); if (k % 4 === 1) __input.hold('interact', 1000); if (k % 13 === 0) __input.press('jump'); if (i % 40 === 39) g.debug.tp(['genA', 'genB', 'genC', 'console', 'cell0', 'lab'][(i / 40 | 0) % 6]); }, 700), 1)", "as": "bot" },
+    { "wait": 100000 },
+    { "eval": "({ ...__soak, frames: __frames - __soak.f0, state: __G.mods.game.state, gens: __G.mods.game.gens, ms: __stats().gameMs, max: __stats().gameMsMax })", "as": "soak1" },
+    { "wait": 100000 },
+    { "eval": "({ ...__soak, frames: __frames - __soak.f0, state: __G.mods.game.state, gens: __G.mods.game.gens, ms: __stats().gameMs, max: __stats().gameMsMax })", "as": "soak2" },
+    { "wait": 100000 },
+    { "eval": "(clearInterval(__soakT), { ...__soak, frames: __frames - __soak.f0, state: __G.mods.game.state, gens: __G.mods.game.gens, ms: __stats().gameMs, max: __stats().gameMsMax })", "as": "soak3" },
+    { "assert": "__frames - __soak.f0 > 1000", "msg": "the game kept rendering for 5 min" },
+    { "assert": "Number.isFinite(__G.mods.player.position.x) && Number.isFinite(__G.mods.player.position.y) && Math.abs(__G.mods.player.position.x) <= 60 && Math.abs(__G.mods.player.position.z) <= 50", "msg": "player stayed finite and inside WORLD" },
+    { "assert": "__G.mods.player.position.y > -0.5 && __G.mods.player.position.y < 3", "msg": "player never fell through or got launched" },
+    { "assert": "__soak.ends === 0 || __soak.restarts > 0", "msg": "every end screen was restartable" },
+    { "assert": "__stats().gameMs < 0.3", "msg": "game update ≤ 0.3 ms/frame (avg) after 5 min" }
+  ]
+}

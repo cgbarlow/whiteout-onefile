@@ -1,5 +1,5 @@
 # WHITEOUT: ship report
-> Paths like `src/…` and `shots/…` refer to the build folder; the game source is being added to this repo. The shipped build is `index.html` at the repo root, and the screenshots are in `whiteout/screenshots/`.
+> Paths like `src/…` and `tools/…` refer to the game source, which is in `whiteout/source/` (build it with `npm i && node build.mjs`). `shots/…` paths refer to capture folders that are not included. The shipped build is `index.html` at the repo root, and the screenshots are in `whiteout/screenshots/`.
 
 WHITEOUT is a first-person survival horror game. You play a lone technician at a snowbound polar research station at dusk while a blizzard builds. You restart three generators to power the radio beacon while something stalks you between the buildings, then call for extraction from the beacon tower. It uses three.js 0.180.0 on WebGL2, and everything is procedural.
 
@@ -78,7 +78,7 @@ UI was not scored because shot mode hides it.
 
 ## Best screenshots (`whiteout/screenshots/*.jpg`, 0 errors)
 - **pose-1.jpg:** establishing view over the station in the blizzard.
-- **pose-2.jpg:** eye level between buildings, with the flashlight and a work lamp.
+- **pose-2.jpg:** eye level between buildings, under a work lamp.
 - **pose-3.jpg:** the hero generator in its shed.
 - **pose-4.jpg:** the lab interior.
 - **pose-5.jpg:** the stalker near the shelter.
@@ -87,6 +87,26 @@ UI was not scored because shot mode hides it.
 - **yaw-2.jpg:** the plow truck and hangar.
 
 Critic JPEGs, crops and shimmer maps are in `shots/final/critic/`.
+
+## Post-release fixes (2026-11-21)
+Fixed after a live-play report from desktop Chrome on a Retina MacBook (devicePixelRatio 2):
+- **Floating dark slab and a line of dark stubs in the snow (one bent like a "1").** These were the door hardware of the lab and
+  radio-hut doors: the lever, three hinges and the door closer. They were built on the interior detail kit, whose transform
+  stack had already been popped, so they appeared at the world origin, in the open snow between LAB-2 and HAB-1. They now use
+  the exterior detail kit and sit on the door leaves (`src/modules/station/lab.js`, `index.js`).
+- **Objective text ran together** ("BEACON LIVE CALL EXTRACTION FROM THE RADIO HUT"). The HUD now shows an uppercase
+  headline with a sentence-case detail line below it ("BEACON LIVE" / "Call extraction from the radio hut").
+- **Colour banding (reported).** This could not be reproduced. The reported screenshot at full resolution, and new live captures at
+  devicePixelRatio 2 on the high and low tiers, show smooth gradients: a mean run of 1.1 identical pixels and about 10 %
+  zero-gradient pixels, the same as the shot-mode captures. The chain is half-float HDR up to the final pass, which writes
+  8-bit output with triangular dither. Eye adaptation never pushes exposure above 1.0. No change was made.
+- **Screenshots** were recaptured with the flashlight off, so the beam no longer appears as a glow with no visible source.
+  (Harness shots hide the first-person torch, which is what made the beam look like it floated.)
+- **Source published** in `whiteout/source/`. It builds standalone, and the output is byte-identical to the shipped `index.html`.
+
+Verified: rebuilt (1127 KB raw, 355.6 KB gzipped, under 2 MB); the 6 hero poses and 2 yaw shots were recaptured on a real GPU
+(M1 Max) with 0 errors; the playtest bot passed with 17 asserts, reaching both win and lose with 0 errors. Before and after
+live captures in the reported state (all generators running, torch off, battery 0) show the stubs and slab gone.
 
 ## Verdict
 The game is complete and playable. Boot (G1), gameplay (G3) and size pass, there are 0 errors on a real GPU, and it is 355 KB gzipped. It does not meet the visual bar (G2 failed: materials 5.5 < 6 and 9 majors > 6; the mean of 6.4 only equals the starting bar) or the frame-time bar (G4: 16.7 ms against 12.5 ms). It ships as the best snapshot, with 16 defects open and no blockers.
