@@ -196,3 +196,7 @@ skill/onefile-aaa/         the Claude Code skill
 
 Third-party code: three.js (MIT), bundled at build time, and a few MIT-licensed noise and meshing helpers. See
 `skill/onefile-aaa/THIRD_PARTY_NOTICES.md`.
+
+## License
+
+MIT, see `LICENSE`. Third-party code keeps its own MIT notices in `skill/onefile-aaa/THIRD_PARTY_NOTICES.md`.
