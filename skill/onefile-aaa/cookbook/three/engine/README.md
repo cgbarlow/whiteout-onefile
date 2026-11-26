@@ -31,22 +31,27 @@ const Q = createQuality(G, { budgetMs: 1000/60, applyPixelRatio: true, allowUltr
 G.quality.tier / .scale / .settings / .maxTier / .pinned / .detected / .dynres{on,p75,history} / .contextLosses
 G.on('quality', (q, what) => { /* what = 'scale' | 'tier': resize targets, swap #defines */ });
 await Q.warmup({ extras: [{ material: sparks, kind: 'points' }, { material: debris, kind: 'instanced' }] });
-Q.setTier('med', 'settings'); Q.setScale(0.8); await Q.simulateContextLoss(500);
+Q.setTier('med', 'settings'); Q.setScale(0.8);
+Q.setManualScale(0.7);   // settings menu: pin render scale (dynres off); null = Auto. false if ?dynres/?shot decided
+await Q.simulateContextLoss(500);
 G.on('contextrestored', () => env.bake());   // anything baked on the GPU must rebake
 ```
 
-- **Tier**: `?q=` pins it. Else `detectTier`: software/mobile → low; Intel (non-Arc)/Mali/Adreno/PowerVR → med; desktop → high;
+- **Tier**: `?q=` pins it. Else `detectTier`: software/mobile → low; Intel (non-Arc)/Mali/Adreno/PowerVR and base Apple M-chips (no Pro/Max/Ultra; not in `?shot`) → med; desktop → high;
   `deviceMemory <= 4` caps at med; `deviceMemory <= 2` or `hardwareConcurrency <= 2` → low. `ultra` only with `?q=ultra` or `allowUltra`.
 - **`TIERS[tier]`** (read via `G.quality.settings`): `pixelCap` MP, `minScale` (dynres floor 0.6/0.6/0.7/0.8), `shadow`,
   `pcssTaps`, `volSteps`, `ao`, `bloomMips`, `msaa`, `aniso`, `particles`, `drawDist`, `lights`. Post passes follow
   `POST_TIERS` in `post/pipeline.js`.
 - **Pixels**: `G.dpr` becomes `min(device dpr, sqrt(pixelCap/cssArea))`. With a post pipeline (`G.post` set) the post renders at
   `G.width*G.dpr*G.quality.scale` and upscales; without one the canvas pixel ratio becomes `G.dpr*scale`. `applyPixelRatio:false` = hands off.
-- **Dynres controller** (off in `?shot`, `?dynres=0`): p75 of rAF frame times over 1 s windows. Over budget = p75 > 1.25×budget
-  (2 windows in a row → −0.05). Headroom = p75 < 1.04×budget (3 windows → +0.05; 8 if that step failed in the last 10 s).
-  Tier down after 3 windows at the floor still over budget; tier up after 10 windows at scale 1 with p75 < 0.7×budget, never
-  above the starting tier, ≥ 10 s between tier changes, exponential backoff when a tier-up is undone within 60 s.
-  Ignores the first 5 s after ready, 1-2 s after resize/visibility/tier changes, and single frames > 250 ms.
+- **Dynres controller** (off in `?shot`, `?dynres=0`): p75 and p90 of rAF frame times over 0.5 s windows (≥ 8 frames, or ≥ 3 after
+  1.5 s), ignoring the first 1.5 s after ready and any window with programs still compiling. Over = p75 > 1.25×budget, p90 >
+  1.5×budget or > 3 % of frames over 1.7×budget (doubled frames; EMA ~2 s, `G.quality.dynres.miss`). Over by > 1.25×: one window, jump to scale·sqrt(0.75·budget/p75); below the floor and
+  p75 > 2×budget → tier down at once (2 tiers above 4×). Otherwise 2 windows → −0.05 (one window → −0.1 when > 6 % of frames double). A tier-up with p75 < 0.5×budget restarts at scale 1 (else 0.85). Headroom = p75 < 0.85×budget and p90 <
+  1.3×budget, or vsync-locked (p50 within 1 ms of budget, p90 < 1.1×), and < 1 % misses (3 windows → +0.05; 12 if that step failed in the last 30 s).
+  Tier down after 3 windows at the floor still over budget (≥ 5 s apart); tier up after 10 windows at scale 1 with p75 < 0.7×budget, never
+  above the starting tier, ≥ 10 s between tier-ups, exponential backoff when a tier-up is undone within 60 s.
+  Ignores 1-2 s after resize/visibility/tier changes and single frames > max(250 ms, 2.5×p75) (a GPU that slow still produces evidence).
 - **Persistence**: 15 s after ready the settled `{tier, scale}` goes to localStorage; a crash canary set at boot and cleared
   then makes a boot that never got there start one tier lower. Disabled in `?shot` and with `?q=`.
 - **Tests**: `Q._feed(ms, frames)` drives the real controller on a virtual clock; `Q._endTest()` restores everything.

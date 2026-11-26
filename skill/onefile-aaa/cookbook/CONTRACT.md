@@ -18,7 +18,7 @@ G = {
   canvas, width, height, dpr,         // CSS px size + device pixel ratio actually used
   t, dt, frame,                       // seconds since start, clamped frame dt (<= 1/20), frame counter
   ART,                                // art-direction constants (schema below) — READ ONLY at runtime
-  quality: { tier: 'low'|'med'|'high'|'ultra', scale: 1.0 },  // scale = dynres render scale
+  quality: { tier: 'low'|'med'|'high'|'ultra', scale: 1.0 },  // scale = dynres render scale (or the manual one: createQuality().setManualScale)
   sun: { dir: Vector3 (normalized, points TO sun), color: Color (linear), intensity: Number, light: DirectionalLight },
   params: URLSearchParams,           // harness params (?shot ?cam ?q ?dt ?seed ?show ?post=0 ...)
   rng: (seed) => () => float[0,1),   // mulberry32 factory
