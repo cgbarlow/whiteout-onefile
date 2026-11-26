@@ -37,7 +37,7 @@ await Q.simulateContextLoss(500);
 G.on('contextrestored', () => env.bake());   // anything baked on the GPU must rebake
 ```
 
-- **Tier**: `?q=` pins it. Else `detectTier`: software/mobile → low; Intel (non-Arc)/Mali/Adreno/PowerVR and base Apple M-chips (no Pro/Max/Ultra; not in `?shot`) → med; desktop → high;
+- **Tier**: `?q=` pins it. Else `detectTier`: software/mobile → low; Intel (non-Arc)/Mali/Adreno/PowerVR → med; desktop → high;
   `deviceMemory <= 4` caps at med; `deviceMemory <= 2` or `hardwareConcurrency <= 2` → low. `ultra` only with `?q=ultra` or `allowUltra`.
 - **`TIERS[tier]`** (read via `G.quality.settings`): `pixelCap` MP, `minScale` (dynres floor 0.6/0.6/0.7/0.8), `shadow`,
   `pcssTaps`, `volSteps`, `ao`, `bloomMips`, `msaa`, `aniso`, `particles`, `drawDist`, `lights`. Post passes follow
@@ -47,7 +47,7 @@ G.on('contextrestored', () => env.bake());   // anything baked on the GPU must r
 - **Dynres controller** (off in `?shot`, `?dynres=0`): p75 and p90 of rAF frame times over 0.5 s windows (≥ 8 frames, or ≥ 3 after
   1.5 s), ignoring the first 1.5 s after ready and any window with programs still compiling. Over = p75 > 1.25×budget, p90 >
   1.5×budget or > 3 % of frames over 1.7×budget (doubled frames; EMA ~2 s, `G.quality.dynres.miss`). Over by > 1.25×: one window, jump to scale·sqrt(0.75·budget/p75); below the floor and
-  p75 > 2×budget → tier down at once (2 tiers above 4×). Otherwise 2 windows → −0.05 (one window → −0.1 when > 6 % of frames double). A tier-up with p75 < 0.5×budget restarts at scale 1 (else 0.85). Headroom = p75 < 0.85×budget and p90 <
+  p75 > 2×budget for 2 windows in a row → tier down (2 tiers above 4×; one stall only moves the scale). Otherwise 2 windows → −0.05 (one window → −0.1 when > 6 % of frames double). A tier-up with p75 < 0.5×budget restarts at scale 1 (else 0.85). Headroom = p75 < 0.85×budget and p90 <
   1.3×budget, or vsync-locked (p50 within 1 ms of budget, p90 < 1.1×), and < 1 % misses (3 windows → +0.05; 12 if that step failed in the last 30 s).
   Tier down after 3 windows at the floor still over budget (≥ 5 s apart); tier up after 10 windows at scale 1 with p75 < 0.7×budget, never
   above the starting tier, ≥ 10 s between tier-ups, exponential backoff when a tier-up is undone within 60 s.

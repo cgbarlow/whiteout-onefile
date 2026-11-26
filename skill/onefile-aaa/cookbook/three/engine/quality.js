@@ -15,7 +15,8 @@
 //  - scale moves in 0.05 steps in [tier.minScale (0.6-0.8), 1]; down needs 2 bad 0.5 s windows in a row, up needs 3
 //    good ones, and a step that failed in the last 30 s needs 12 (stops the vsync 60↔30 ping-pong);
 //  - far over budget (p75 > 1.25x) one window is enough and the scale JUMPS (≈ scale*sqrt(0.75*budget/p75)); when even
-//    the floor cannot fit and p75 > 2x budget the tier drops at once (two tiers above 4x). 7 fps → settled in ~3 s;
+//    the floor cannot fit and p75 > 2x budget for two windows in a row the tier drops (two tiers above 4x), so a
+//    single stall never costs a tier. 7 fps → settled in ~5 s;
 //  - "good" means p75 < 0.85 × budget with p90 < 1.3 × budget, OR vsync-locked (p50 ≈ budget, p90 < 1.1 × budget): on a
 //    vsync-locked display frames never go below the refresh interval, so a pure "< 85 %" rule would never scale up;
 //    "bad" also counts the tail (p90 > 1.5x, or > 3 % of frames over 1.7x budget, EMA ~2 s): GPU-bound browsers present
@@ -44,7 +45,7 @@ const tierIdx = (t) => Math.max(0, TIER_ORDER.indexOf(t));
 
 // ---- tier detection -------------------------------------------------------------------------------------------
 // Conservative: unknown desktop GPUs get 'high'; 'ultra' is only ever chosen explicitly (?q=ultra or opts.allowUltra).
-export function detectTier(renderer, { allowUltra = false, capture = false } = {}) {
+export function detectTier(renderer, { allowUltra = false } = {}) {
   const gl = renderer.getContext();
   const ext = gl.getExtension('WEBGL_debug_renderer_info');
   const gpu = String(ext ? gl.getParameter(ext.UNMASKED_RENDERER_WEBGL) : gl.getParameter(gl.RENDERER));
@@ -56,10 +57,6 @@ export function detectTier(renderer, { allowUltra = false, capture = false } = {
   if (/SwiftShader|llvmpipe|softpipe|Software|Basic Render/i.test(gpu)) { tier = 'low'; reason = 'software renderer'; }
   else if (mobile) { tier = 'low'; reason = 'mobile'; }
   else if (/Mali|Adreno|PowerVR|Intel(?!.*Arc)|UHD Graphics|Iris/i.test(gpu)) { tier = 'med'; reason = 'integrated/mobile GPU'; }
-  // base Apple M-chips (no Pro/Max/Ultra suffix): a base M4 measured ~10x slower than an M1 Max on this cookbook,
-  // so a bare 'Apple M<n>' is never 'high' by name alone (dynres can still drop it to low). Not for ?shot
-  // captures (capture: true): they keep the high look on any M-chip, as they always did.
-  else if (!capture && /Apple M\d+(?![\w ]*(Pro|Max|Ultra))/i.test(gpu)) { tier = 'med'; reason = 'base Apple M-chip'; }
   else if (allowUltra && /RTX\s?[3-5]0[6-9]0|RX\s?[6-9][7-9]00|Apple M\d (Max|Ultra)/i.test(gpu)) { tier = 'ultra'; reason = 'high-end GPU'; }
   if (mem <= 2 || cores <= 2) { tier = 'low'; reason += ', low memory/cores'; }
   else if (mem <= 4 && tierIdx(tier) > 1) { tier = 'med'; reason += ', <=4 GB'; }
@@ -84,7 +81,7 @@ export function createQuality(G, opts = {}) {
   const p = G.params;
   const forced = p.get('q');
   const shot = !!p.get('shot');
-  const det = detectTier(G.renderer, { allowUltra, capture: shot });
+  const det = detectTier(G.renderer, { allowUltra });
   const Q = G.quality;
   Q.detected = det;
   Q.tier = TIERS[forced] ? forced : (TIERS[opts.tier] ? opts.tier : det.tier);
@@ -105,7 +102,7 @@ export function createQuality(G, opts = {}) {
   Q.scale = saved && saved.tier === Q.tier && saved.scale >= Q.settings.minScale ? Math.min(1, saved.scale) : 1;
   Q.contextLosses = 0;
   const dynOn = !shot && p.get('dynres') !== '0' && opts.dynres !== false;
-  const D = Q.dynres = { on: dynOn, p75: 0, p90: 0, miss: 0, avg: 0, over: 0, under: 0, floorWindows: 0, headroomWindows: 0, history: [] };
+  const D = Q.dynres = { on: dynOn, p75: 0, p90: 0, miss: 0, avg: 0, over: 0, under: 0, far: 0, floorWindows: 0, headroomWindows: 0, history: [] };
 
   // ---- applying scale ----
   // G.dpr becomes min(device dpr, tier pixel cap) — "the dpr actually used" (CONTRACT). Then:
@@ -206,15 +203,19 @@ export function createQuality(G, opts = {}) {
     // far over budget (p75 > 1.25x): act on ONE window and jump instead of stepping. Pixel cost ~ scale^2, so
     // scale * sqrt(0.75 * budget / p75) is the scale that would fit if the whole frame were pixel-bound (it never
     // is, so this undershoots the drop and the next window finishes the job). If even the floor scale cannot fit
-    // and p75 > 2x budget, drop the tier straight away (two tiers when p75 > 4x budget).
+    // and p75 > 2x budget two windows running, drop the tier (two tiers when p75 > 4x budget).
     const ratio = p75 / budgetMs;
+    // a tier drop is close to one-way (on a 60 Hz vsync display p75 can never show the headroom a tier-up needs), so
+    // it needs TWO far-over windows in a row: one 0.5 s stall (GC, a spawn wave, a background app) only moves the scale,
+    // which climbs back by itself.
+    D.far = ratio > 2 ? D.far + 1 : 0;
     if (ratio > 1.25 && D.over >= 1) {
       const want = Q.scale * Math.sqrt(0.75 / ratio);
       const canTier = !Q.pinned && opts.autoTier !== false && tierIdx(Q.tier) > 0 && t - lastTierChange > 1500;
-      if (want < Q.settings.minScale - 1e-3 && ratio > 2 && canTier) {
+      if (want < Q.settings.minScale - 1e-3 && D.far >= 2 && canTier) {
         if (t - lastTierUp < 60000) tierBackoff = Math.min(8, tierBackoff * 2);
         const drop = ratio > 4 ? 2 : 1;
-        D.over = D.under = D.floorWindows = 0;
+        D.over = D.under = D.floorWindows = D.far = 0;
         setTier(TIER_ORDER[Math.max(0, tierIdx(Q.tier) - drop)], 'far over budget', p75); setScale(1, 'tier down reset', p75);
         return;
       }
