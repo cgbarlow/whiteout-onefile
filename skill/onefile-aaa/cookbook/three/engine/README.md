@@ -63,7 +63,7 @@ G.on('contextrestored', () => env.bake());   // anything baked on the GPU must r
 ## input.js
 
 ```js
-const input = createInput(G, { root: uiRoot, sens: 0.0022, invertY: false, dragStyle: 'button' });  // create BEFORE consumers
+const input = createInput(G, { root: uiRoot, sens: 0.0022, invertY: false, dragStyle: 'hover' });  // create BEFORE consumers
 G.on('update', () => { yaw -= input.lookX; pitch -= input.lookY; walk(input.move.x, input.move.y); if (input.pressed('jump')) jump(); });
 // bots / playtests
 __input.hold('forward', 800); __input.press('jump'); __input.look(200, 0); __input.lookRad(0.5, 0); __input.setMove(0, 1, 1000); __input.clear();
@@ -75,11 +75,11 @@ __input.hold('forward', 800); __input.press('jump'); __input.look(200, 0); __inp
 - `mode`: `lock` (click requests pointer lock synchronously from the gesture: `unadjustedMovement` first, plain on
   `NotSupportedError` (Linux / Wayland) and remembered; a refused or 1.5 s silent request is NOT permanent: hint "Click to
   capture the mouse" + `input:lockfail`, the next click retries; while unlocked a free cursor never steers; movementX/Y
-  spikes > 400 px or within 60 ms of a lock change are dropped), `drag` (lock API missing or refused 3 times in a row → banner
-  "Mouse capture unavailable"; default `button` style: hold a mouse button + drag, that button still fires; `hover` style:
-  mouse motion turns, cursor resting in the outer 5 % keeps turning), `touch` (first touch: left 45 % = floating stick, push past the rim = sprint;
+  spikes (> `spikePx` 100 px per ms since the last event, floor 400 px) or within 60 ms of a lock change are dropped), `drag` (lock API missing or refused 3 times in a row → banner
+  "Mouse capture unavailable"; default `hover` style: mouse motion turns, cursor resting in the outer 5 % keeps turning;
+  `button` style: hold a mouse button + drag, that button still fires), `touch` (first touch: left 45 % = floating stick, push past the rim = sprint;
   right side = look; buttons from `touchButtons`), `pad`. Mouse buttons use `mousedown/up` (pointer events fold chorded
-  presses into pointermove). The canvas cursor is hidden while `input.enabled` (shown only while waiting for a capture click).
+  presses into pointermove). The canvas cursor is hidden while `input.enabled` (shown only while waiting for a capture click); `hideCursor: false` keeps it (default when `lockOnClick: false`).
 - `input.enabled = false` (menus) zeroes everything except `alwaysOn` actions (default `['pause']`).
 - Events: `input:unlock` (`'exit'`: a lock that was held is lost (Esc, alt-tab) → pause with "click to resume"; the Esc that
   ended the lock does not also toggle `pause`), `input:lockfail` (`why`: never captured, no pause), `input:drag` (`why`). `__stats().input = {mode, locked, lockFailed}`.

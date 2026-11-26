@@ -16,7 +16,7 @@
 // "click to capture" hint shows ('input:lockfail') and the next click retries. A lock that was held and is lost
 // (Esc, alt-tab) emits 'input:unlock' so the game pauses with "click to resume". While unlocked in lock
 // mode raw mouse motion never steers; movementX/Y spikes (lock (re)acquisition, compositor warps) are dropped.
-// The canvas hides the cursor while input is enabled (in play). Mouse buttons use mousedown/up (pointer events fold
+// The canvas hides the cursor while input is enabled (in play; opts.hideCursor, off when lockOnClick is false). Mouse buttons use mousedown/up (pointer events fold
 // chorded presses such as LMB-then-RMB into pointermove, which lost turbo / stuck fire).
 // All values are latched once per frame on G 'preupdate' (before every 'update' listener), so creation order does not matter.
 import { Vector2 } from 'three';
@@ -40,8 +40,11 @@ export function createInput(G, opts = {}) {
     root = document.body,     // where banner / touch controls go (they carry class 'ui' so html.shot hides them)
     touchButtons = ['jump', 'fire', 'interact'],
     target = G.canvas,
-    dragStyle = 'button',     // drag-mode look: 'button' = only while a mouse button is held (that button still fires);
-                              // 'hover' = plain mouse motion turns, resting at a screen edge keeps turning
+    dragStyle = 'hover',      // drag-mode look: 'hover' = plain mouse motion turns, resting at a screen edge keeps
+                              // turning (fire/aim clicks stay free); 'button' = only while a mouse button is held
+                              // (that button still fires its action)
+    hideCursor = lockOnClick, // hide the canvas cursor in play; false for cursor-driven games (RTS, point-and-click)
+    spikePx = 100,            // look-spike filter: px per ms since the last move event (floor 400 px); 0 = off
     edgeRate = 1.6,
     alwaysOn = ['pause'],     // actions that still latch while input.enabled = false (menus must be able to resume)           // rad/s yaw while the cursor rests in the outer 5% (hover style)
   } = opts;
@@ -86,7 +89,8 @@ export function createInput(G, opts = {}) {
   // ---- mouse: pointer lock, drag fallback ----
   let dragging = false, lastX = 0, lastY = 0, hasLast = false, curX = -1, curY = -1, inside = false, lockPending = 0;
   let noUnadjusted = false, lockFails = 0, lockAt = 0, unlockAt = 0, lockSeq = 0, cursorHidden = false;
-  const SPIKE = 400, SETTLE = 60; // px per event / ms after a lock change: movement outside these is a glitch, not a flick
+  const SETTLE = 60;   // ms after a lock change: movement in this window is the (re)acquisition jump, not a flick
+  let moveAt = 0;      // time of the previous locked move event (the spike limit scales with the gap)
   const onLeave = () => { inside = false; hasLast = false; };
   document.addEventListener('mouseleave', onLeave);
   const mouseAct = (btn, on) => { const l = codeToActions.get('Mouse' + btn); if (l) for (const a of l) setRaw(a, MOUSE, on); };
@@ -145,7 +149,11 @@ export function createInput(G, opts = {}) {
     if (e.pointerType === 'touch' || !I.enabled) return;
     if (I.locked) {
       const mx = e.movementX || 0, my = e.movementY || 0, now = performance.now();
-      if (now - lockAt > SETTLE && Math.abs(mx) < SPIKE && Math.abs(my) < SPIKE) { accX += mx * I.sens; accY += my * I.sens; }
+      // browsers deliver ONE pointermove per frame (movementX = the sum since the last one), so the limit follows the
+      // gap: a fixed px cap would eat ordinary turns at low frame rates and fast flicks on high-DPI mice
+      const lim = spikePx > 0 ? Math.max(400, spikePx * Math.min(250, now - moveAt)) : Infinity;
+      moveAt = now;
+      if (now - lockAt > SETTLE && Math.abs(mx) < lim && Math.abs(my) < lim) { accX += mx * I.sens; accY += my * I.sens; }
     } else if (I.mode === 'drag' && (dragging || dragStyle === 'hover')) {
       if (hasLast) { accX += (e.clientX - lastX) * I.sens; accY += (e.clientY - lastY) * I.sens; }
       lastX = e.clientX; lastY = e.clientY; hasLast = true;
@@ -298,7 +306,7 @@ export function createInput(G, opts = {}) {
   I.update = (dt) => {
     pollPad();
     // no cursor over the canvas during play (shown only while waiting for a click to capture the mouse)
-    const hide = I.enabled && I.mode !== 'touch' && !(I.mode === 'lock' && !I.locked && !I.lockFailed && lockFails > 0);
+    const hide = hideCursor && I.enabled && I.mode !== 'touch' && !(I.mode === 'lock' && !I.locked && !I.lockFailed && lockFails > 0);
     if (hide !== cursorHidden) { cursorHidden = hide; target.style.cursor = hide ? 'none' : ''; }
     for (let i = 0; i < actions.length; i++) {
       const a = actions[i];
